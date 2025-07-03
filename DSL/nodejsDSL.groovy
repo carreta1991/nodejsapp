@@ -1,22 +1,35 @@
 job('Aplicacion Node.js DSL') {
     description('Aplicación Node JS DSL para el curso de Jenkins')
+
     scm {
-        git('https://github.com/macloujulian/nodejsapp.git', 'master') { node ->
-            node / gitConfigName('macloujulian')
-            node / gitConfigEmail('macloujulian@gmail.com')
+        git {
+            remote {
+                url('https://github.com/macloujulian/nodejsapp.git')
+            }
+            branch('master')
+            extensions {
+                userIdentity {
+                    name('josan')
+                    email('prueba@pruebas.com)
+                }
+            }
         }
     }
+
     triggers {
         scm('H/7 * * * *')
     }
+
     wrappers {
         nodejs('nodejs')
     }
+
     steps {
-        shell("npm install")
+        shell('npm install')
     }
-    publishers {
-	slackNotifier {
+
+    configure { project ->
+        project / publishers << 'jenkins.plugins.slack.SlackNotifier' {
             notifyAborted(true)
             notifyEveryFailure(true)
             notifyNotBuilt(false)
@@ -27,11 +40,7 @@ job('Aplicacion Node.js DSL') {
             startNotification(false)
             includeTestSummary(false)
             includeCustomMessage(false)
-            customMessage(null)
-            sendAs(null)
             commitInfoChoice('NONE')
-            teamDomain(null)
-            authToken(null)
         }
     }
 }
